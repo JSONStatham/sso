@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 
@@ -25,6 +26,11 @@ const (
 	defaultTestAppName = "test-app"
 )
 
+var (
+	testAppID int64
+	setupOnce sync.Once
+)
+
 type Suite struct {
 	*testing.T
 	Cfg        *config.Config
@@ -34,9 +40,10 @@ type Suite struct {
 	GRPCClient *grpc.ClientConn
 }
 
-var (
-	testAppID int64
-)
+// GetTestAppID returns the ID of the test app created during setup
+func (s *Suite) GetTestAppID() int64 {
+	return testAppID
+}
 
 func New(t *testing.T) (context.Context, *Suite) {
 	t.Helper()
@@ -45,15 +52,22 @@ func New(t *testing.T) (context.Context, *Suite) {
 	cfg := config.MustLoadByPath("../config/test.yaml")
 	log := slogdiscard.NewDiscardLogger()
 
-	runMigrations(t)
-
 	// Initialize application
 	app := app.New(log, cfg)
 
 	// Start services in background
-	startServices(t, app)
+	go func() {
+		if err := app.GRPCSrv.Run(); err != nil {
+			t.Logf("gRPC server error: %v", err)
+		}
+	}()
 
 	clientConn := setupGRPCClient(t, cfg)
+
+	setupOnce.Do(func() {
+		runMigrations(t)
+		createTestApp(t, app)
+	})
 
 	t.Cleanup(func() {
 		if err := clientConn.Close(); err != nil {
@@ -63,7 +77,6 @@ func New(t *testing.T) (context.Context, *Suite) {
 		app.Storage.Close()
 
 		// Clean environment
-		os.Unsetenv("DB_PATH")
 		os.Unsetenv("JWT_SECRET")
 		os.Unsetenv("ENV")
 	})
@@ -83,20 +96,10 @@ func setupTestEnv(t *testing.T) {
 	t.Helper()
 
 	os.Setenv("ENV", "test")
-	os.Setenv("DB_PATH", ":memory:")
 	os.Setenv("JWT_SECRET", defaultJWTSecret)
 }
 
-func startServices(t *testing.T, app *app.App) {
-	t.Helper()
-
-	// Start gRPC server
-	go func() {
-		if err := app.GRPCSrv.Run(); err != nil {
-			t.Logf("gRPC server error: %v", err)
-		}
-	}()
-
+func createTestApp(t *testing.T, app *app.App) {
 	// Create test app
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -148,9 +151,4 @@ func waitForServerReady(t *testing.T, port int) {
 	}
 
 	t.Fatalf("Server didn't become ready within %v", defaultWaitTime)
-}
-
-// GetTestAppID returns the ID of the test app created during setup
-func (s *Suite) GetTestAppID() int64 {
-	return testAppID
 }
