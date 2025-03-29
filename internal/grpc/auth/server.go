@@ -32,7 +32,7 @@ type RegisterRequest struct {
 type LoginRequest struct {
 	Email    string `validate:"required,email"`
 	Password string `validate:"required,min=6"`
-	AppID    int    `validate:"required"`
+	AppID    int64  `validate:"required"`
 }
 
 type serverAPI struct {
@@ -73,7 +73,7 @@ func (s *serverAPI) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.
 	loginReq := LoginRequest{
 		Email:    req.GetEmail(),
 		Password: req.GetPassword(),
-		AppID:    int(req.GetAppId()),
+		AppID:    req.GetAppId(),
 	}
 
 	if err := validate.Struct(loginReq); err != nil {
@@ -81,7 +81,7 @@ func (s *serverAPI) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.
 		return nil, status.Error(codes.InvalidArgument, validationErr.Error())
 	}
 
-	token, err := s.auth.Login(ctx, loginReq.Email, loginReq.Password, int64(loginReq.AppID))
+	token, err := s.auth.Login(ctx, loginReq.Email, loginReq.Password, loginReq.AppID)
 	if err != nil {
 		if errors.Is(err, auth.ErrInvalidCredentials) {
 			return nil, status.Error(codes.NotFound, "user not found")

@@ -2,6 +2,8 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/JSONStatham/protos v0.0.2 h1:6oFgzsd9b0MmPgri31dGCcMj7xutLbr7px1g4MDuufg=
 github.com/JSONStatham/protos v0.0.2/go.mod h1:rBjuyai4WeJklS3eBuSI2YuAgbsaUz81I1NQnG4lyoc=
+github.com/JSONStatham/protos v0.0.3 h1:+NHDe5ysMA3WCTvnKVqtDo2QS7YbTSSZ8P2BMn6nSpE=
+github.com/JSONStatham/protos v0.0.3/go.mod h1:rBjuyai4WeJklS3eBuSI2YuAgbsaUz81I1NQnG4lyoc=
 github.com/brianvoe/gofakeit v3.18.0+incompatible h1:wDOmHc9DLG4nRjUVVaxA+CEglKOW72Y5+4WNxUIkjM8=
 github.com/brianvoe/gofakeit v3.18.0+incompatible/go.mod h1:kfwdRA90vvNhPutZWfH7WPaDzUjz+CZFqG+rPkOjGOc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

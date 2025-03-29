@@ -3,7 +3,7 @@ module github.com/JSONStatham/sso
 go 1.24.0
 
 require (
-	github.com/JSONStatham/protos v0.0.2
+	github.com/JSONStatham/protos v0.0.3
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.2.2
