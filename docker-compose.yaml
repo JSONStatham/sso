@@ -1,0 +1,28 @@
+services:
+  # app:
+  #   build: .
+  #   container_name: go_app
+  #   depends_on:
+  #     - db
+  #   volumes:
+  #     - sqlite_data:/data
+  #   environment:
+  #     - DATABASE_URL=sqlite:///data/database.sqlite
+
+  # db:
+  #   image: alpine
+  #   container_name: sso_db
+  #   command: [ "sh", "-c", "mkdir -p /database && touch /database/sso.sqlite" ]
+  #   volumes:
+  #     - sqlite_data:/database
+
+  migrate:
+    image: migrate/migrate
+    container_name: sso_migrate
+    command: "migrate -database sqlite3://database/sso.db -path /migrations up"
+    volumes:
+      - ./migrations:/migrations
+      - ./database/sso.sqlite:/database/sso.sqlite
+
+volumes:
+  sqlite_data:

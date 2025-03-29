@@ -1,0 +1,69 @@
+version: '3'
+
+vars:
+  APP_NAME: "sso"
+  CONTAINER_DB: "db"
+  CONTAINER_APP: "app"
+  DB_URL: "sqlite3://database/sso.sqlite"
+  CMD: "cmd/{{.APP_NAME}}/main.go"
+
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']  
+
+tasks:
+  build:
+    cmds:
+      - go build -o bin/{{.APP_NAME}} ./{{.CMD}}
+
+  up:
+    preconditions:
+      - test -f docker-compose.yaml
+    cmds:
+      - docker compose up -d
+
+  down:
+    preconditions:
+      - test -f docker-compose.yaml
+    cmds:
+      - docker compose down
+
+  build-docker:
+    cmds:
+      - docker compose up -d --build
+
+  restart:
+    cmds:
+      - docker compose restart
+
+  down-volumes:
+    cmds:
+      - docker compose down --volumes
+
+  migrate_version:
+    cmds:
+      - migrate -path migrations -database "{{.DB_URL}}" version
+    silent: true      
+
+  migrate_reset:
+    cmds:
+      - migrate -path migrations -database "{{.DB_URL}}" force 1
+    silent: true
+
+  migrate_up:
+    cmds:
+      # - migrate -path migrations -database "{{.DB_URL}}" -verbose up
+      - go run ./cmd/migrator/main.go --migrations-path="./migrations" --storage-path="./database/sso.db"
+    silent: true
+
+  migrate_down:
+    cmds:
+      - migrate -path migrations -database "{{.DB_URL}}" -verbose down
+    silent: true      
+
+  test_migrate:
+    cmds:
+      - go run ./cmd/migrator/main.go --migrations-path="./tests/migrations" --storage-path="./database/sso.db" --migrations-table=test_migrations
+    silent: true
+
+  db_seed:
+    cmds:
+      - echo "TODO"

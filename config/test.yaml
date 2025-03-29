@@ -1,0 +1,6 @@
+env: "test"
+storage_path: "file::memory:?cache=shared"
+token_ttl: 1h
+grpc:
+  port: 4444
+  timeout: 10h
